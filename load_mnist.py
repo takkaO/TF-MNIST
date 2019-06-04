@@ -28,3 +28,11 @@ def load_label(fpath, onehot=True):
 	if onehot:
 		labels = to_one_hot(labels)
 	return labels
+
+
+if __name__ == "__main__":
+	train_img = load_img("./train-images.idx3-ubyte")
+	img = train_img.reshape([-1, 28, 28])
+	import cv2
+	cv2.imshow("t", img[1])
+	cv2.waitKey()
