@@ -17,13 +17,10 @@ def main():
 	hidden_size = 50
 	input_size = 784
 	output_size = 10
-	train_size = train_img.shape[0]
-	batch_size = 100
 
 	x = tf.placeholder("float", [None, input_size])
 	y = tf.placeholder("float", [None, output_size])
 
-	
 	W1 = tf.Variable(initializer([input_size, hidden_size]))
 	b1 = tf.Variable(tf.zeros([hidden_size]))
 	W2 = tf.Variable(initializer([hidden_size, output_size]))
@@ -31,50 +28,19 @@ def main():
 
 	y1 = tf.nn.relu(tf.add(tf.matmul(x, W1), b1))
 	logits = tf.add(tf.matmul(y1, W2), b2)
-	#predict = tf.nn.softmax(logits)
-
-
-	loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-		logits=logits,
-		labels=y
-	)
-
-
-	opt = tf.train.GradientDescentOptimizer(0.00001).minimize(loss)  # SGD
-	#opt = tf.train.AdamOptimizer().minimize(loss)
-
 	correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
 	accurancy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-	init = tf.global_variables_initializer()
-
-	print("Train start")
-	epochs = 10000
+	
+	saver = tf.train.Saver()
 	with tf.Session() as sess:
-		sess.run(init)
-		for step in range(epochs):
-			batch_mask = np.random.choice(train_size, batch_size)
-			batch_x = train_img[batch_mask]
-			batch_t = train_label[batch_mask]
+		saver.restore(sess, "./model/test_model")
+		print("Restore Model")
 
-			sess.run(opt, feed_dict={x: batch_x, y: batch_t})
-
-			if step % (1000) == 0:
-				print(step, "/", epochs, "Complete! ")
-				res = sess.run(accurancy, feed_dict={x: train_img, y: train_label})
-				print("train accurancy: ", "{:.2f}".format(res*100), " %")
-				res = sess.run(accurancy, feed_dict={x: test_img, y: test_label})
-				print("test  accurancy: ", "{:.2f}".format(res*100), " %")
-				
-		print(epochs, "/", epochs, "Complete! ")
+		print("Check Model")
 		res = sess.run(accurancy, feed_dict={x: train_img, y: train_label})
 		print("train accurancy: ", "{:.2f}".format(res*100), " %")
 		res = sess.run(accurancy, feed_dict={x: test_img, y: test_label})
 		print("test  accurancy: ", "{:.2f}".format(res*100), " %")
-
-		#saver = tf.train.Saver()
-		#saver.save(sess, "./model/test_model")
-	
 	
 
 if __name__ == "__main__":
